@@ -171,6 +171,9 @@ public class Board {
         }
         return ret;
     }
+    public Symbol[] getBoard() {
+        return board;
+    }
     
     public int alphaBeta(Symbol player) {
         return alphaBeta(player, Integer.MIN_VALUE, Integer.MAX_VALUE, 0);
