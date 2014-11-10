@@ -178,12 +178,6 @@ public class Board {
 
     public int alphaBeta(Symbol player, int alpha, int beta, int depth) {
         if (isTerminal()) {
-//            int score = getScore();
-//            score *= 10;
-//            if (score > 0)
-//                score -= depth;
-//            if (score < 0)
-//                score += depth;
             return getScore(depth);
         }
         if (player.max()) {
@@ -215,26 +209,14 @@ public class Board {
 
     public int minimax(Symbol player, int depth) {
         if (isTerminal()) {
-//            int score = getScore();
-//            score *= 10;
-//            if (score > 0)
-//                score -= depth;
-//            if (score < 0)
-//                score += depth;
-//            System.out.println("Calculated score for");
-//            print();
-//            System.out.println("is " + score);
             return getScore(depth);
         }
-//        System.out.println("Calculating score for player " + player.getSymbol());
-//        print();
         int bestScore = player.max() ? Integer.MIN_VALUE : Integer.MAX_VALUE;
         for (Board b : getMoves(player)) {
             int bscore = b.minimax(player.other(), depth + 1);
             if (player.max() && bscore > bestScore || player.min() && bscore < bestScore)
                 bestScore = bscore;
         }
-//        System.out.println("got " + bestScore);
         return bestScore;
     }
     public void print() {
