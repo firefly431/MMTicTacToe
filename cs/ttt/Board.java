@@ -132,6 +132,16 @@ public class Board {
         return 0;
     }
 
+    public int getScore(int depth) {
+        int score = getScore();
+        score *= 10;
+        if (score > 0)
+            score -= depth;
+        if (score < 0)
+            score += depth;
+        return score;
+    }
+
     public boolean isFilled() {
         for (Symbol s : board)
             if (s == Symbol.NONE)
@@ -168,13 +178,13 @@ public class Board {
 
     public int alphaBeta(Symbol player, int alpha, int beta, int depth) {
         if (isTerminal()) {
-            int score = getScore();
-            score *= 10;
-            if (score > 0)
-                score -= depth;
-            if (score < 0)
-                score += depth;
-            return score;
+//            int score = getScore();
+//            score *= 10;
+//            if (score > 0)
+//                score -= depth;
+//            if (score < 0)
+//                score += depth;
+            return getScore(depth);
         }
         if (player.max()) {
             for (Board b : getMoves(player)) {
@@ -205,16 +215,16 @@ public class Board {
 
     public int minimax(Symbol player, int depth) {
         if (isTerminal()) {
-            int score = getScore();
-            score *= 10;
-            if (score > 0)
-                score -= depth;
-            if (score < 0)
-                score += depth;
+//            int score = getScore();
+//            score *= 10;
+//            if (score > 0)
+//                score -= depth;
+//            if (score < 0)
+//                score += depth;
 //            System.out.println("Calculated score for");
 //            print();
 //            System.out.println("is " + score);
-            return score;
+            return getScore(depth);
         }
 //        System.out.println("Calculating score for player " + player.getSymbol());
 //        print();

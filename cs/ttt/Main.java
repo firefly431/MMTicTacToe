@@ -25,7 +25,7 @@ public class Main {
             ArrayList<Integer> maxMoves = new ArrayList<Integer>();
             for (int i : gameBoard.getMovePositions()) {
                 Board consider = gameBoard.move(i, currentPlayer);
-                int score = consider.minimax(currentPlayer.other());
+                int score = consider.alphaBeta(currentPlayer.other());
                 System.out.println(i + ": " + score);
                 if (currentPlayer.max() && score > maxScore || currentPlayer.min() && score < maxScore) {
                     maxMoves.clear();
