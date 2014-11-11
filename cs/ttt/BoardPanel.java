@@ -18,6 +18,7 @@ public class BoardPanel extends JPanel {
     private int[] weights;
     private Board.Symbol symbol;
     private WeightProvider provider;
+    private MoveListener listener;
 
     class BoardClickListener extends MouseAdapter {
         @Override
@@ -27,6 +28,8 @@ public class BoardPanel extends JPanel {
             if (x < 0 || x >= 3 || y < 0 || y >= 3)
                 return; // out of bounds
             BoardPanel.this.setBoardAndSwitch(BoardPanel.this.getBoard().move(x + y * 3, BoardPanel.this.getSymbol()));
+            if (BoardPanel.this.listener != null)
+                BoardPanel.this.listener.moved(BoardPanel.this);
         }
     }
     public BoardPanel() {
@@ -42,6 +45,7 @@ public class BoardPanel extends JPanel {
         setSymbol(Symbol.X);
         setBackground(Color.WHITE);
         provider = null;
+        listener = null;
     }
     @Override
     public Dimension getPreferredSize() {
@@ -82,6 +86,14 @@ public class BoardPanel extends JPanel {
         this.provider = provider;
         if (provider != null)
             setWeights(provider.calculateWeights(getBoard(), getSymbol()));
+    }
+    public MoveListener getListener() {
+        return listener;
+    }
+    public void setListener(MoveListener listener) {
+        this.listener = listener;
+        if (listener != null)
+            listener.moved(this);
     }
     public int[] getWeights() {
         return weights;
