@@ -13,7 +13,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.*;
 
-// TODO: display weights with colors
 public class BoardPanel extends JPanel {
     private Board board;
     private int[] weights;
@@ -27,8 +26,7 @@ public class BoardPanel extends JPanel {
             int y = e.getY() * 3 / BoardPanel.this.getHeight();
             if (x < 0 || x >= 3 || y < 0 || y >= 3)
                 return; // out of bounds
-            BoardPanel.this.setBoard(BoardPanel.this.getBoard().move(x + y * 3, BoardPanel.this.getSymbol()));
-            BoardPanel.this.switchSymbol();
+            BoardPanel.this.setBoardAndSwitch(BoardPanel.this.getBoard().move(x + y * 3, BoardPanel.this.getSymbol()));
         }
     }
     public BoardPanel() {
@@ -49,10 +47,28 @@ public class BoardPanel extends JPanel {
     public Dimension getPreferredSize() {
         return new Dimension(600, 600);
     }
-    public void setBoard(Board b) {
-        board = b;
+    // must call revalidate and repaint yourself
+    protected void calculateWeights() {
         if (provider != null)
             setWeights(getProvider().calculateWeights(getBoard(), getSymbol()));
+    }
+    public void setBoard(Board b) {
+        board = b;
+        calculateWeights();
+        revalidate();
+        repaint();
+    }
+    public void setBoardAndSwitch(Board b) {
+        board = b;
+        symbol = symbol.other();
+        calculateWeights();
+        revalidate();
+        repaint();
+    }
+    public void setBoardAndSymbol(Board b, Board.Symbol s) {
+        board = b;
+        symbol = s;
+        calculateWeights();
         revalidate();
         repaint();
     }
@@ -64,6 +80,8 @@ public class BoardPanel extends JPanel {
     }
     public void setProvider(WeightProvider provider) {
         this.provider = provider;
+        if (provider != null)
+            setWeights(provider.calculateWeights(getBoard(), getSymbol()));
     }
     public int[] getWeights() {
         return weights;
@@ -91,6 +109,9 @@ public class BoardPanel extends JPanel {
     }
     public void setSymbol(Symbol symbol) {
         this.symbol = symbol;
+        calculateWeights();
+        revalidate();
+        repaint();
     }
     public void switchSymbol() {
         setSymbol(getSymbol().other());
@@ -98,6 +119,46 @@ public class BoardPanel extends JPanel {
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
+        if (board != null) {
+            for (int i = 0; i < 9; i++) {
+                int px = i % 3;
+                int py = i / 3;
+                int pl = getWidth() * px / 3;
+                int pr = getWidth() * (px + 1) / 3;
+                int pt = getHeight() * py / 3;
+                int pb = getHeight() * (py + 1) / 3;
+                int opl = pl, opr = pr, opt = pt, opb = pb;
+                // padding
+                int padding = Math.min(getWidth(), getHeight()) / 60;
+                if (getWidth() < 15 || getHeight() < 15)
+                    padding = 1;
+                if (getWidth() < 10 || getHeight() < 10)
+                    padding = 0;
+                pt += padding;
+                pb -= padding;
+                pl += padding;
+                pr -= padding;
+                Color mixColor = weights[i] < 0 ? Color.BLUE : Color.RED;
+                int mixFactor = Math.abs(weights[i]);
+                int newR = 255 - (255 - mixColor.getRed())   * mixFactor / 10;
+                int newG = 255 - (255 - mixColor.getGreen()) * mixFactor / 10;
+                int newB = 255 - (255 - mixColor.getBlue())  * mixFactor / 10;
+                g.setColor(new Color(newR, newG, newB));
+                g.fillRect(opl, opt, opr - opl, opb - opt);
+                switch (board.getBoard()[i]) {
+                    case X:
+                        g.setColor(Color.RED.darker());
+                        g.drawLine(pl, pt, pr, pb);
+                        g.drawLine(pr, pt, pl, pb);
+                        break;
+                    case O:
+                        g.setColor(Color.BLUE.darker());
+                        g.drawOval(pl, pt, pr - pl, pb - pt);
+                        break;
+                    default:
+                }
+            }
+        }
         int top = 0;
         int my1 = getHeight() / 3;
         int my2 = getHeight() * 2 / 3;
@@ -111,36 +172,5 @@ public class BoardPanel extends JPanel {
         g.drawLine(mx2, top, mx2, bot);
         g.drawLine(left, my1, right, my1);
         g.drawLine(left, my2, right, my2);
-        if (board == null) return;
-        for (int i = 0; i < 9; i++) {
-            int px = i % 3;
-            int py = i / 3;
-            int pl = getWidth() * px / 3;
-            int pr = getWidth() * (px + 1) / 3;
-            int pt = getHeight() * py / 3;
-            int pb = getHeight() * (py + 1) / 3;
-            // padding
-            int padding = Math.min(getWidth(), getHeight()) / 60;
-            if (getWidth() < 15 || getHeight() < 15)
-                padding = 1;
-            if (getWidth() < 10 || getHeight() < 10)
-                padding = 0;
-            pt += padding;
-            pb -= padding;
-            pl += padding;
-            pr -= padding;
-            switch (board.getBoard()[i]) {
-                case X:
-                    g.setColor(Color.RED.darker());
-                    g.drawLine(pl, pt, pr, pb);
-                    g.drawLine(pr, pt, pl, pb);
-                    break;
-                case O:
-                    g.setColor(Color.BLUE.darker());
-                    g.drawOval(pl, pt, pr - pl, pb - pt);
-                    break;
-                default:
-            }
-        }
     }
 }

@@ -9,12 +9,8 @@ package cs.ttt;
  *
  * @author s506571
  */
-class AlphaBetaWeightProvider implements WeightProvider {
-    public int[] calculateWeights(Board board, Board.Symbol symbol) {
-        int[] ret = new int[9];
-        for (int i = 0; i < 9; i++) {
-            ret[i] = board.alphaBeta(symbol);
-        }
-        return ret;
+class AlphaBetaWeightProvider extends WeightProvider {
+    public int calculateWeight(Board board, Board.Symbol consider) {
+        return board.alphaBeta(consider);
     }
 }
