@@ -11,6 +11,7 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import javax.swing.*;
 
 public class BoardPanel extends JPanel {
@@ -18,18 +19,29 @@ public class BoardPanel extends JPanel {
     private int[] weights;
     private Board.Symbol symbol;
     private WeightProvider provider;
-    private MoveListener listener;
+    private ArrayList<MoveListener> listeners;
+    private Board.Symbol startSymbol;
+    private boolean weightsVisible;
 
     class BoardClickListener extends MouseAdapter {
         @Override
         public void mouseReleased(MouseEvent e) {
-            int x = e.getX() * 3 / BoardPanel.this.getWidth();
-            int y = e.getY() * 3 / BoardPanel.this.getHeight();
-            if (x < 0 || x >= 3 || y < 0 || y >= 3)
-                return; // out of bounds
-            BoardPanel.this.setBoardAndSwitch(BoardPanel.this.getBoard().move(x + y * 3, BoardPanel.this.getSymbol()));
-            if (BoardPanel.this.listener != null)
-                BoardPanel.this.listener.moved(BoardPanel.this);
+            if (BoardPanel.this.getBoard().isTerminal()) {
+                // reset the board on click
+                BoardPanel.this.setBoard(new Board());
+                // set to starting symbol
+                BoardPanel.this.setSymbol(BoardPanel.this.getStartSymbol());
+            } else {
+                int x = e.getX() * 3 / BoardPanel.this.getWidth();
+                int y = e.getY() * 3 / BoardPanel.this.getHeight();
+                if (x < 0 || x >= 3 || y < 0 || y >= 3)
+                    return; // out of bounds
+                int i = x + y * 3;
+                if (BoardPanel.this.getBoard().getBoard()[i] == Board.Symbol.NONE)
+                    BoardPanel.this.setBoardAndSwitch(BoardPanel.this.getBoard().move(x + y * 3, BoardPanel.this.getSymbol()));
+            }
+            for (MoveListener l : listeners)
+                l.moved(BoardPanel.this);
         }
     }
     public BoardPanel() {
@@ -42,10 +54,11 @@ public class BoardPanel extends JPanel {
         setBoard(b);
         setWeights(weights);
         addMouseListener(new BoardClickListener());
-        setSymbol(Symbol.X);
+        setStartSymbol(Symbol.X);
+        setSymbol(getStartSymbol());
         setBackground(Color.WHITE);
         provider = null;
-        listener = null;
+        listeners = new ArrayList<MoveListener>();
     }
     @Override
     public Dimension getPreferredSize() {
@@ -76,6 +89,12 @@ public class BoardPanel extends JPanel {
         revalidate();
         repaint();
     }
+    public Symbol getStartSymbol() {
+        return startSymbol;
+    }
+    public void setStartSymbol(Symbol startSymbol) {
+        this.startSymbol = startSymbol;
+    }
     public Board getBoard() {
         return board;
     }
@@ -87,13 +106,13 @@ public class BoardPanel extends JPanel {
         if (provider != null)
             setWeights(provider.calculateWeights(getBoard(), getSymbol()));
     }
-    public MoveListener getListener() {
-        return listener;
-    }
-    public void setListener(MoveListener listener) {
-        this.listener = listener;
+    public void addListener(MoveListener listener) {
+        listeners.add(listener);
         if (listener != null)
             listener.moved(this);
+    }
+    public boolean removeListener(MoveListener listener) {
+        return listeners.remove(listener);
     }
     public int[] getWeights() {
         return weights;
@@ -128,6 +147,14 @@ public class BoardPanel extends JPanel {
     public void switchSymbol() {
         setSymbol(getSymbol().other());
     }
+    public void setWeightsVisible(boolean state) {
+        weightsVisible = state;
+        revalidate();
+        repaint();
+    }
+    public boolean getWeightsVisible() {
+        return weightsVisible;
+    }
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -150,13 +177,15 @@ public class BoardPanel extends JPanel {
                 pb -= padding;
                 pl += padding;
                 pr -= padding;
-                Color mixColor = weights[i] < 0 ? Color.BLUE : Color.RED;
-                int mixFactor = Math.abs(weights[i]);
-                int newR = 255 - (255 - mixColor.getRed())   * mixFactor / 10;
-                int newG = 255 - (255 - mixColor.getGreen()) * mixFactor / 10;
-                int newB = 255 - (255 - mixColor.getBlue())  * mixFactor / 10;
-                g.setColor(new Color(newR, newG, newB));
-                g.fillRect(opl, opt, opr - opl, opb - opt);
+                if (weightsVisible) {
+                    Color mixColor = weights[i] < 0 ? Color.BLUE : Color.RED;
+                    int mixFactor = Math.abs(weights[i]);
+                    int newR = 255 - (255 - mixColor.getRed())   * mixFactor / 10;
+                    int newG = 255 - (255 - mixColor.getGreen()) * mixFactor / 10;
+                    int newB = 255 - (255 - mixColor.getBlue())  * mixFactor / 10;
+                    g.setColor(new Color(newR, newG, newB));
+                    g.fillRect(opl, opt, opr - opl, opb - opt);
+                }
                 switch (board.getBoard()[i]) {
                     case X:
                         g.setColor(Color.RED.darker());

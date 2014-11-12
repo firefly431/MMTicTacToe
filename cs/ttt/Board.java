@@ -148,7 +148,7 @@ public class Board {
                 return false;
         return true;
     }
-
+    
     public boolean isTerminal() {
         return isFilled() || getScore() != 0;
     }
