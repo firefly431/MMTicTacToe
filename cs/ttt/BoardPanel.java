@@ -21,7 +21,7 @@ public class BoardPanel extends JPanel {
     private WeightProvider provider;
     private ArrayList<MoveListener> listeners;
     private Board.Symbol startSymbol;
-    private boolean weightsVisible;
+    private boolean weightsVisible = true;
 
     class BoardClickListener extends MouseAdapter {
         @Override
