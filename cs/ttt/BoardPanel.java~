@@ -213,12 +213,12 @@ public class BoardPanel extends JPanel {
         }
         // coordinates
         int top = 0;
-        int my1 = getHeight() / 3;
-        int my2 = getHeight() * 2 / 3;
+        int my1 = getHeight() / 3; // line 1
+        int my2 = getHeight() * 2 / 3; // line 2
         int bot = getHeight();
         int left = 0;
-        int mx1 = getWidth() / 3;
-        int mx2 = getWidth() * 2 / 3;
+        int mx1 = getWidth() / 3; // line 3
+        int mx2 = getWidth() * 2 / 3; // line 4
         int right = getWidth();
         g.setColor(Color.BLACK);
         g.drawLine(mx1, top, mx1, bot);

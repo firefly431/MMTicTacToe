@@ -1,7 +1,13 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
 package cs.ttt;
 
 /**
- * Implementation of WeightProvider using the alphaBeta method of the board
+ *
+ * @author s506571
  */
 class AlphaBetaWeightProvider extends WeightProvider {
     public int calculateWeight(Board board, Board.Symbol consider) {

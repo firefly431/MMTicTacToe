@@ -18,7 +18,6 @@ public class WeightMover implements MoveListener {
                     minw = w[i];
                 }
             }
-            // move
             bp.setBoardAndSymbol(bp.getBoard().move(mini, Board.Symbol.O), Board.Symbol.X);
         }
     }

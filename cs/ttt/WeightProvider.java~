@@ -4,6 +4,9 @@ package cs.ttt;
  * Interface that provides weights for the board
  */
 public abstract class WeightProvider {
+    /**
+     * Calculate weights and return
+     */
     public int[] calculateWeights(Board board, Board.Symbol symbol) {
         int[] ret = new int[9];
         if (!board.isTerminal())

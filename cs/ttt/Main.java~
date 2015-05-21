@@ -54,7 +54,6 @@ public class Main {
         // add menu event listeners
         ItemListener listener = new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
-                // when one of the checkboxes is changed
                 boolean state = e.getStateChange() == ItemEvent.SELECTED;
                 Object t = e.getItemSelectable();
                 if (t == XGoesFirst)
